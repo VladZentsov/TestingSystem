@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using BLL.DTO;
+using BLL.Models;
 using DAL.Entities;
 using System;
 using System.Collections.Generic;
@@ -14,6 +15,18 @@ namespace BLL
         public AutomapperProfile()
         {
             CreateMap<TestDto, Test>()
+                .ReverseMap();
+
+            CreateMap<Test, TestNames>()
+                .ReverseMap();
+
+            CreateMap<TestDescriptionModel, Test>()
+                .ReverseMap();
+
+            CreateMap<QuestionDto, Question>()
+                .ReverseMap();
+
+            CreateMap<AnswerDto, Answer>()
                 .ReverseMap();
         }
     }

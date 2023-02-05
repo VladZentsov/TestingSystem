@@ -54,14 +54,23 @@ namespace DAL.TestingSystemDBContext
                     .HasKey(x => x.Id);
 
                 builder
-                    .HasOne(x => x.Test)
-                    .WithMany(x=>x.Questions)
-                    .HasForeignKey(x => x.TestId);
+                    .HasMany(x => x.Answers)
+                    .WithOne()
+                    .HasForeignKey(x => x.QuestionId);
+            }
+        }
+
+        public class TestEntityTypeConfiguration : IEntityTypeConfiguration<Test>
+        {
+            public void Configure(EntityTypeBuilder<Test> builder)
+            {
+                builder
+                    .HasKey(x => x.Id);
 
                 builder
-                    .HasMany(x => x.Answers)
-                    .WithOne(x=>x.Question)
-                    .HasForeignKey(x => x.QuestionId);
+                    .HasMany(x => x.Questions)
+                    .WithOne()
+                    .HasForeignKey(x => x.TestId);
             }
         }
     }

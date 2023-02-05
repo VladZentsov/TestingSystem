@@ -1,17 +1,16 @@
-﻿using System;
+﻿using DAL.Entities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.Entities
+namespace BLL.DTO
 {
-    public class Question: BaseEntity
+    public class QuestionDto:BaseDto
     {
-        public string TestId { get; set; }
         public int Number { get; set; }
         public string QuestionText { get; set; }
-        public ICollection<Answer> Answers { get; set; }
-
+        public ICollection<AnswerDto> Answers { get; set; }
     }
 }

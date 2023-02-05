@@ -4,12 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DAL.Entities
+namespace BLL.DTO
 {
-    public class Answer:BaseEntity
+    public class AnswerDto:BaseDto
     {
-        public string QuestionId { get; set; }
         public string AnswerText { get; set; }
-        public bool IsAnswerCorrect { get; set; }
     }
 }

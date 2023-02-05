@@ -15,6 +15,7 @@ namespace DAL.UnitOfWork
         private readonly ITestingSystemDbContext _testingSystemDbContext;
         private IIdentityUserRepository _identityUserRepository;
         private ITestRepository _testRepository;
+        private IUserTestsRepository _userTestsRepository;
 
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
@@ -47,6 +48,19 @@ namespace DAL.UnitOfWork
                 return _testRepository;
             }
         }
+
+        public IUserTestsRepository UserTestsRepository
+        {
+            get
+            {
+                if (_userTestsRepository == null)
+                {
+                    _userTestsRepository = new UserTestsRepository(_testingSystemDbContext);
+                }
+                return _userTestsRepository;
+            }
+        }
+
         public Task SaveAsync()
         {
             _testingSystemDbContext.SaveChanges();

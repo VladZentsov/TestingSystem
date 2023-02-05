@@ -11,6 +11,7 @@ namespace DAL.UnitOfWork
     {
         public IIdentityUserRepository IdentityUserRepository { get; }
         public ITestRepository TestRepository { get; }
+        public IUserTestsRepository UserTestsRepository { get; }
         Task SaveAsync();
     }
 }

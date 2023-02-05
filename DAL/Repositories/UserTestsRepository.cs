@@ -11,21 +11,17 @@ using System.Threading.Tasks;
 
 namespace DAL.Repositories
 {
-    public class TestRepository: ITestRepository
+    public class UserTestsRepository : IUserTestsRepository
     {
         private ITestingSystemDbContext _dbContext;
-        private readonly DbSet<Test> _tests;
-        private readonly DbSet<Question> _questions;
-        private readonly DbSet<Answer> _answers;
-        public TestRepository(ITestingSystemDbContext dbContext)
+        private readonly DbSet<UserTests> _tests;
+        public UserTestsRepository(ITestingSystemDbContext dbContext)
         {
             _dbContext = dbContext;
-            _tests = dbContext.Set<Test>();
-            _questions = dbContext.Set<Question>();
-            _answers = dbContext.Set<Answer>();
+            _tests = dbContext.Set<UserTests>();
         }
 
-        public void Add(Test entity)
+        public void Add(UserTests entity)
         {
             _tests.Add(entity);
         }
@@ -36,9 +32,9 @@ namespace DAL.Repositories
         }
 
 
-        public async Task<Test> GetByIdAsync(string id)
+        public async Task<UserTests> GetByIdAsync(string id)
         {
-            var result = new Test();
+            var result = new UserTests();
 
             if (_tests == null)
                 throw new ArgumentNullException("DbSet is null", "_tests");
@@ -51,18 +47,17 @@ namespace DAL.Repositories
             return result;
         }
 
-        public async Task<Test> GetByIdWithDetailsAsync(string id)
+        public async Task<UserTests> GetByIdWithDetailsAsync(string id)
         {
-            var result = new Test();
+            var result = new UserTests();
 
             if (_tests == null)
                 throw new ArgumentNullException("DbSet is null", "_tests");
 
             result = await _tests
-                .Include(x => x.Questions)
+                .Include(x => x.Test)
+                .Include(x=>x.IdentityUser)
                 .FirstOrDefaultAsync(z => z.Id == id);
-
-            _answers.Load();
 
             if (result == null)
                 throw new EntityNotFoundException("Given Id not found.", "id");
@@ -70,34 +65,31 @@ namespace DAL.Repositories
             return result;
         }
 
-        public async Task<IEnumerable<Test>> GetAllAsync()
+        public async Task<IEnumerable<UserTests>> GetAllAsync()
         {
             return await _tests.ToListAsync();
         }
 
-        public void Update(Test entity)
+        public void Update(UserTests entity)
         {
             _tests.Update(entity);
         }
 
-        public void Delete(Test entity)
+        public void Delete(UserTests entity)
         {
             _tests.Remove(entity);
         }
 
-        public async Task<IEnumerable<Test>> GetAllWithDetailsAsync()
+        public async Task<IEnumerable<UserTests>> GetAllByUserIdWithDetailsAsync(string userId)
         {
-            //var result = new Test();
-
             if (_tests == null)
                 throw new ArgumentNullException("DbSet is null", "_tests");
 
-            var result = _tests;
-
-            _questions.Load();
-            _answers.Load();
-            //_answers.Where(async x => (await result.ToListAsync()).Select(y => y.Questions).SelectMany(y => y).Select(z => z.Id).Contains(x.Id));
-
+            var result = await _tests
+                .Include(x => x.Test)
+                .Include(x => x.IdentityUser)
+                .Where(z => z.UserId == userId)
+                .ToListAsync();
 
             if (result == null)
                 throw new EntityNotFoundException("Given Id not found.", "id");
@@ -106,4 +98,3 @@ namespace DAL.Repositories
         }
     }
 }
-

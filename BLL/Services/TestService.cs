@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using BLL.DTO;
 using BLL.Interfaces;
+using BLL.Models;
 using DAL.Entities;
 using DAL.UnitOfWork;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -50,29 +52,68 @@ namespace BLL.Services
 
         public async Task<TestDto> GetByIdAsync(string id)
         {
-            var book = await _unitOfWork.TestRepository.GetByIdAsync(id);
+            var test = await _unitOfWork.TestRepository.GetByIdAsync(id);
 
-            var bookDto = _mapper.Map<TestDto>(book);
+            var testDto = _mapper.Map<TestDto>(test);
 
-            return bookDto;
+            return testDto;
+        }
+
+        public async Task<TestDto> GetByIdWithDetailsAsync(string id)
+        {
+            var test = await _unitOfWork.TestRepository.GetByIdWithDetailsAsync(id);
+
+            var resultTest = _mapper.Map<TestDto>(test);
+
+            return resultTest;
         }
 
         public async Task<TestDto> UpdateAsync(TestDto model)
         {
-            var book = _mapper.Map<Test>(model);
+            var test = _mapper.Map<Test>(model);
 
-            _unitOfWork.TestRepository.Update(book);
+            _unitOfWork.TestRepository.Update(test);
 
             await _unitOfWork.SaveAsync();
 
-            return _mapper.Map<Test, TestDto>(book);
+            return _mapper.Map<Test, TestDto>(test);
         }
 
-        public async Task<IEnumerable<string>> GetAvaliableTestNames(string userId)
+        public async Task<IEnumerable<TestNames>> GetAvaliableTestNames(string userId)
         {
-            var k = (await _unitOfWork.TestRepository.GetAllAsync()).Select(x => x.Name);
+            var tests = (await _unitOfWork.UserTestsRepository.GetAllByUserIdWithDetailsAsync(userId))
+                .Select(ut=>ut.Test);
 
-            return k;
+            var testNames = _mapper.Map<IEnumerable<Test>, IEnumerable<TestNames>>(tests);
+
+            return testNames;
+        }
+
+        public async Task<TestDescriptionModel> GetTestDescription(string testId)
+        {
+            var test = await _unitOfWork.TestRepository.GetByIdAsync(testId);
+
+            var testDescription = _mapper.Map<TestDescriptionModel>(test);
+
+            return testDescription;
+        }
+
+        public async Task<ResultModel> CheckTestAndGetResults(TestingAnswer testingAnswers)
+        {
+            var test = await _unitOfWork.TestRepository.GetByIdWithDetailsAsync(testingAnswers.TestId);
+
+            var testAnswers = test.Questions.SelectMany(q => q.Answers);
+
+            int resultScore = 0;
+
+            foreach (var answer in testingAnswers.Answers)
+            {
+                if(testAnswers.FirstOrDefault(a=>a.Id == answer.Id).IsAnswerCorrect)
+                    resultScore++;
+            }
+            var result = new ResultModel() { Result = resultScore, MaxTestResults = test.Questions.Count() };
+
+            return result;
         }
     }
 }
